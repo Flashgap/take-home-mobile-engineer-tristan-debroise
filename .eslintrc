@@ -1,0 +1,48 @@
+{
+  "extends": ["universe/native", "prettier"],
+  "plugins": ["react-native"],
+  "rules": {
+    "react-native/no-unused-styles": "error",
+    // "semi": ["error", "never"],    
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": false
+      }
+    ],
+    "import/order": [
+      "error",
+      {
+        "pathGroups": [
+          {
+            "pattern": "@tanstack/**",
+            "group": "external"
+          },
+          {
+            "pattern": "@react-navigation/**",
+            "group": "external"
+          },
+          {
+            "pattern": "@**/**",
+            "group": "external",
+            "position": "after"
+          },
+          {
+            "pattern": "@styled",
+            "group": "external",
+            "position": "after"
+          },
+          {
+            "pattern": "./**",
+            "group": "sibling",
+            "position": "after"
+          }
+        ],
+        "newlines-between": "always",
+        "pathGroupsExcludedImportTypes": [
+          "builtin"
+        ]
+      }
+    ]
+  }
+}

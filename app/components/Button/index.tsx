@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   ViewStyle,
 } from "react-native";
-import { Colors } from "../../style";
+
+import { COLORS } from "@styles/colors";
 
 /**
  * Button used to like or dislike a user profile.
@@ -23,7 +24,7 @@ export function SwipeButton(props: {
     <TouchableOpacity
       style={[
         styles.container,
-        { backgroundColor: type === "like" ? Colors.GREEN : Colors.YELLOW },
+        { backgroundColor: type === "like" ? COLORS.GREEN : COLORS.YELLOW },
         style,
       ]}
       onPress={onPress}
@@ -40,7 +41,7 @@ export function SwipeButton(props: {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    backgroundColor: Colors.WHITE,
+    backgroundColor: COLORS.WHITE,
     borderRadius: 100,
     display: "flex",
     justifyContent: "center",

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+
 import { UsersAPI } from "../api";
 import { User } from "../models";
 
@@ -36,12 +37,16 @@ export function UsersProvider(props: {
     setUsers((prev) => [...prev, ...result.users]);
   }, []);
 
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
   // Dislike user
   const dislikeUser = React.useCallback(
     async (userId: string) => {
       const result = await UsersAPI.dislikeUser(userId);
       setUsers((prev) => {
-        let temp = [...prev];
+        const temp = [...prev];
         temp.splice(0, 1);
         return temp;
       });
@@ -54,7 +59,7 @@ export function UsersProvider(props: {
     async (userId: string) => {
       const result = await UsersAPI.likeUser(userId);
       setUsers((prev) => {
-        let temp = [...prev];
+        const temp = [...prev];
         temp.splice(0, 1);
         return temp;
       });
