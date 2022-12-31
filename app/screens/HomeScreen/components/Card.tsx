@@ -12,6 +12,7 @@ import React from "react";
 import { User } from "@models/user";
 import { COLORS } from "@styles/colors";
 import { useAppNavigation } from "@hooks/useAppNavigation";
+import { formatUserName } from "@utils/userDisplay";
 
 interface CardProps {
   user: User;
@@ -21,10 +22,6 @@ interface CardProps {
   opacity: Animated.Value;
   index: number;
   itemsLength: number;
-}
-
-function formatUserName(name: string): string {
-  return name.split(" ")[0];
 }
 
 export function Card({
