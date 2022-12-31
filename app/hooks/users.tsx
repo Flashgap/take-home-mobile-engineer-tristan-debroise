@@ -9,9 +9,9 @@ interface UsersContextValue {
   /** Load a list of users. */
   loadUsers: () => Promise<void>;
   /** Dislike a user and go to the next one. */
-  dislikeUser: (userId: string) => Promise<void>;
+  dislikeUser: () => Promise<void>;
   /** Like a user and go to the next one. */
-  likeUser: (userId: string) => Promise<void>;
+  likeUser: () => Promise<void>;
 }
 
 const UsersContext = React.createContext<UsersContextValue>({
@@ -42,30 +42,29 @@ export function UsersProvider(props: {
   }, []);
 
   // Dislike user
-  const dislikeUser = React.useCallback(
-    async (userId: string) => {
-      const result = await UsersAPI.dislikeUser(userId);
-      setUsers((prev) => {
-        const temp = [...prev];
-        temp.splice(0, 1);
-        return temp;
-      });
-    },
-    [users]
-  );
+  const dislikeUser = React.useCallback(async () => {
+    setUsers((prev) => {
+      const temp = [...prev];
+      if (temp.length === 0) return temp;
+      const targetUser = temp.splice(0, 1)[0];
+      console.log(targetUser.id);
+      UsersAPI.dislikeUser(targetUser.id);
+      return temp;
+    });
+  }, [users]);
 
   // Like user
-  const likeUser = React.useCallback(
-    async (userId: string) => {
-      const result = await UsersAPI.likeUser(userId);
-      setUsers((prev) => {
-        const temp = [...prev];
-        temp.splice(0, 1);
-        return temp;
-      });
-    },
-    [users]
-  );
+  const likeUser = React.useCallback(async () => {
+    // const result = await UsersAPI.likeUser(userId);
+    setUsers((prev) => {
+      const temp = [...prev];
+      if (temp.length === 0) return temp;
+      const targetUser = temp.splice(0, 1)[0];
+      console.log(targetUser.id);
+      UsersAPI.likeUser(targetUser.id);
+      return temp;
+    });
+  }, [users]);
 
   // Create context provider value
   const value = React.useMemo<UsersContextValue>(() => {

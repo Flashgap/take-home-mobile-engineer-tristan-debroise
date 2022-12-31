@@ -16,10 +16,14 @@ export function SwipeButton(props: {
   /** Kind of the button you want to display */
   type: "like" | "dislike";
   style?: StyleProp<ViewStyle>;
+  size?: number;
   onPress: () => void;
 }): React.ReactElement {
   const { type, style, onPress } = props;
-
+  const imageStyle = {
+    width: props.size || 50,
+    height: props.size || 50,
+  };
   return (
     <TouchableOpacity
       style={[
@@ -30,9 +34,9 @@ export function SwipeButton(props: {
       onPress={onPress}
     >
       {type === "like" ? (
-        <Image style={styles.image} source={require("./check.png")} />
+        <Image style={imageStyle} source={require("./check.png")} />
       ) : (
-        <Image style={styles.image} source={require("./close.png")} />
+        <Image style={imageStyle} source={require("./close.png")} />
       )}
     </TouchableOpacity>
   );
@@ -46,9 +50,5 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "center",
     position: "relative",
-  },
-  image: {
-    width: 36,
-    height: 36,
   },
 });
