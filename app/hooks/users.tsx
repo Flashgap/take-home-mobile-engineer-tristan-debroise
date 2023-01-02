@@ -47,21 +47,23 @@ export function UsersProvider(props: {
       const temp = [...prev];
       if (temp.length === 0) return temp;
       const targetUser = temp.splice(0, 1)[0];
-      console.log(targetUser.id);
       UsersAPI.dislikeUser(targetUser.id);
       return temp;
     });
   }, [users]);
 
+  async function onLikeUser(userId: string) {
+    const res = await UsersAPI.likeUser(userId);
+    console.log(res);
+  }
+
   // Like user
   const likeUser = React.useCallback(async () => {
-    // const result = await UsersAPI.likeUser(userId);
     setUsers((prev) => {
       const temp = [...prev];
       if (temp.length === 0) return temp;
       const targetUser = temp.splice(0, 1)[0];
-      console.log(targetUser.id);
-      UsersAPI.likeUser(targetUser.id);
+      onLikeUser(targetUser.id);
       return temp;
     });
   }, [users]);

@@ -5,19 +5,21 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAnimation } from "@hooks/useAnimation";
 import { SwipeButton } from "@components/Button";
 import { COLORS } from "@styles/colors";
+import { useUsers } from "@hooks/users";
 
 import { Card } from "./components/Card";
 import { Header } from "./components/Header";
 
 export function HomeScreen() {
+  const { likeUser, dislikeUser } = useUsers();
   const { data, ...animation } = useAnimation();
 
   function onPressDislike() {
-    // animation.onSwipe("left");
+    dislikeUser();
   }
 
   function onPressLike() {
-    // animation.onSwipe("right");
+    likeUser();
   }
 
   return (

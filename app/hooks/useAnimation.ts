@@ -1,17 +1,14 @@
-// Create `useTinderCard` hook
 import { useRef, useEffect } from "react";
-import { Animated, PanResponder, Dimensions } from "react-native";
+import { Animated, PanResponder, useWindowDimensions } from "react-native";
 import clamp from "clamp";
 
 import { useUsers } from "./users";
-const { width } = Dimensions.get("screen");
-
-const SWIPE_THRESHOLD = 0.25 * width;
 
 export function useAnimation() {
+  const { width } = useWindowDimensions();
+  const SWIPE_THRESHOLD = 0.25 * width;
   const { users: data, likeUser, dislikeUser } = useUsers();
   const animation = useRef(new Animated.ValueXY()).current;
-  const opacity = useRef(new Animated.Value(1)).current;
   const scale = useRef(new Animated.Value(0.9)).current;
 
   const transitionNext = (velocity: number) => {
@@ -21,11 +18,6 @@ export function useAnimation() {
       dislikeUser();
     }
     Animated.parallel([
-      Animated.timing(opacity, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: false,
-      }),
       Animated.spring(scale, {
         toValue: 1,
         friction: 4,
@@ -36,7 +28,6 @@ export function useAnimation() {
 
   useEffect(() => {
     scale.setValue(0.9);
-    opacity.setValue(1);
     animation.setValue({ x: 0, y: 0 });
   }, [data]);
 
@@ -77,5 +68,5 @@ export function useAnimation() {
       },
     })
   ).current;
-  return { data, _panResponder, animation, scale, opacity };
+  return { data, _panResponder, animation, scale };
 }

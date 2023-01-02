@@ -19,7 +19,6 @@ interface CardProps {
   _panResponder: PanResponderInstance;
   animation: Animated.ValueXY;
   scale: Animated.Value;
-  opacity: Animated.Value;
   index: number;
   itemsLength: number;
 }
@@ -29,7 +28,6 @@ export function Card({
   _panResponder,
   animation,
   scale,
-  opacity,
   index,
   itemsLength,
 }: CardProps) {
@@ -42,13 +40,24 @@ export function Card({
     outputRange: ["-30deg", "0deg", "30deg"],
     extrapolate: "clamp",
   });
+  const opacity = animation.x.interpolate({
+    inputRange: [-200, 0, 200],
+    outputRange: [0.5, 1, 0.5],
+    extrapolate: "clamp",
+  });
+  const bg = animation.x.interpolate({
+    inputRange: [-200, 0, 200],
+    outputRange: [COLORS.YELLOW, COLORS.WHITE, COLORS.GREEN],
+    extrapolate: "clamp",
+  });
 
   const animatedCardStyles = {
     transform: [{ rotate }, ...animation.getTranslateTransform()],
-    opacity,
+    backgroundColor: bg,
   };
 
   const cardStyle = isLastItem ? animatedCardStyles : undefined;
+  const contentContainerStyle = isLastItem ? { opacity } : undefined;
   const nextStyle = isSecondToLast
     ? { transform: [{ scale }], borderRadius: 5 }
     : undefined;
@@ -62,19 +71,21 @@ export function Card({
       {...panHandlers}
       style={[styles.container, cardStyle, nextStyle]}
     >
-      <Image
-        resizeMode="cover"
-        source={{ uri: user.pictures[0] }}
-        style={styles.image}
-      />
-      <Pressable style={styles.contentContainer} onPress={onCardPress}>
-        <Text style={styles.nameText}>
-          {formatUserName(user.name)} • {user.age}
-        </Text>
-        <Text style={styles.distanceText}>
-          À {user.distance} kilomètres {user.id}
-        </Text>
-      </Pressable>
+      <Animated.View style={[styles.contentContainer, contentContainerStyle]}>
+        <Image
+          resizeMode="cover"
+          source={{ uri: user.pictures[0] }}
+          style={styles.image}
+        />
+        <Pressable style={styles.pressableContainer} onPress={onCardPress}>
+          <Text style={styles.nameText}>
+            {formatUserName(user.name)} • {user.age}
+          </Text>
+          <Text style={styles.distanceText}>
+            À {user.distance} kilomètres {user.id}
+          </Text>
+        </Pressable>
+      </Animated.View>
     </Animated.View>
   );
 }
@@ -101,12 +112,16 @@ const styles = StyleSheet.create({
     }),
     borderRadius: 10,
   },
+  contentContainer: {
+    flex: 1,
+    // backgroundColor: "red",
+  },
   image: {
     position: "absolute",
-    top: -3,
-    left: -3,
-    right: -3,
-    bottom: -3,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     borderRadius: 10,
   },
   nameText: {
@@ -119,7 +134,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 20,
   },
-  contentContainer: {
+  pressableContainer: {
     flex: 1,
     padding: 24,
     justifyContent: "flex-end",
