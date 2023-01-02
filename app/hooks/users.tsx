@@ -15,6 +15,8 @@ interface UsersContextValue {
   dislikeUser: () => Promise<void>;
   /** Like a user and go to the next one. */
   likeUser: () => Promise<void>;
+  /** Whether or not the users are loading. */
+  loadingUsers: boolean;
 }
 
 const UsersContext = React.createContext<UsersContextValue>({
@@ -22,6 +24,7 @@ const UsersContext = React.createContext<UsersContextValue>({
   loadUsers: async () => {},
   dislikeUser: async () => {},
   likeUser: async () => {},
+  loadingUsers: false,
 });
 
 /**
@@ -33,17 +36,29 @@ export function UsersProvider(props: {
   const { open } = useSnackbar();
   const { children } = props;
   const [users, setUsers] = React.useState<User[]>([]);
-
+  const [loadingUsers, setLoading] = React.useState<boolean>(false);
+  console.log(loadingUsers);
   // Load users
   const loadUsers = React.useCallback(async () => {
+    setLoading(true);
     const result = await UsersAPI.loadUsers();
-
-    setUsers((prev) => [...prev, ...result.users]);
+    // Simulate a loading time
+    setTimeout(() => {
+      setUsers((prev) => [...prev, ...result.users]);
+      setLoading(false);
+    }, 1000);
   }, []);
 
   useEffect(() => {
     loadUsers();
   }, []);
+
+  useEffect(() => {
+    // This is made for the example, it might lead to unwanted api calls if we keep it that way
+    if (users.length < 10 && !loadingUsers) {
+      loadUsers();
+    }
+  }, [users]);
 
   // Dislike user
   const dislikeUser = React.useCallback(async () => {
@@ -81,8 +96,9 @@ export function UsersProvider(props: {
       loadUsers,
       dislikeUser,
       likeUser,
+      loadingUsers,
     };
-  }, [users, loadUsers, dislikeUser, likeUser]);
+  }, [users, loadUsers, dislikeUser, likeUser, loadingUsers]);
 
   return (
     <UsersContext.Provider value={value}>{children}</UsersContext.Provider>
