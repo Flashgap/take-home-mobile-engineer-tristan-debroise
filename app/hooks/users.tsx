@@ -1,4 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
+
+import { useSnackbar } from "@atoms/snackbar";
+import { formatUserName } from "@utils/userDisplay";
+
 import { UsersAPI } from "../api";
 import { User } from "../models";
 
@@ -8,9 +12,11 @@ interface UsersContextValue {
   /** Load a list of users. */
   loadUsers: () => Promise<void>;
   /** Dislike a user and go to the next one. */
-  dislikeUser: (userId: string) => Promise<void>;
+  dislikeUser: () => Promise<void>;
   /** Like a user and go to the next one. */
-  likeUser: (userId: string) => Promise<void>;
+  likeUser: () => Promise<void>;
+  /** Whether or not the users are loading. */
+  loadingUsers: boolean;
 }
 
 const UsersContext = React.createContext<UsersContextValue>({
@@ -18,6 +24,7 @@ const UsersContext = React.createContext<UsersContextValue>({
   loadUsers: async () => {},
   dislikeUser: async () => {},
   likeUser: async () => {},
+  loadingUsers: false,
 });
 
 /**
@@ -26,41 +33,61 @@ const UsersContext = React.createContext<UsersContextValue>({
 export function UsersProvider(props: {
   children: React.ReactNode;
 }): React.ReactElement {
+  const { open } = useSnackbar();
   const { children } = props;
   const [users, setUsers] = React.useState<User[]>([]);
+  const [loadingUsers, setLoading] = React.useState<boolean>(false);
 
   // Load users
   const loadUsers = React.useCallback(async () => {
+    setLoading(true);
     const result = await UsersAPI.loadUsers();
-
-    setUsers((prev) => [...prev, ...result.users]);
+    // Simulate a loading time
+    setTimeout(() => {
+      setUsers((prev) => [...prev, ...result.users]);
+      setLoading(false);
+    }, 1000);
   }, []);
 
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  useEffect(() => {
+    // This is made for the example, it might lead to unwanted api calls if we keep it that way
+    if (users.length < 10 && !loadingUsers) {
+      loadUsers();
+    }
+  }, [users]);
+
   // Dislike user
-  const dislikeUser = React.useCallback(
-    async (userId: string) => {
-      const result = await UsersAPI.dislikeUser(userId);
-      setUsers((prev) => {
-        let temp = [...prev];
-        temp.splice(0, 1);
-        return temp;
-      });
-    },
-    [users]
-  );
+  const dislikeUser = React.useCallback(async () => {
+    setUsers((prev) => {
+      const temp = [...prev];
+      if (temp.length === 0) return temp;
+      const targetUser = temp.splice(0, 1)[0];
+      UsersAPI.dislikeUser(targetUser.id);
+      return temp;
+    });
+  }, [users]);
+
+  async function onLikeUser(user: User) {
+    const res = await UsersAPI.likeUser(user.id);
+    if (res.matched) {
+      open({ message: `It's a match! With ${formatUserName(user.name)}` });
+    }
+  }
 
   // Like user
-  const likeUser = React.useCallback(
-    async (userId: string) => {
-      const result = await UsersAPI.likeUser(userId);
-      setUsers((prev) => {
-        let temp = [...prev];
-        temp.splice(0, 1);
-        return temp;
-      });
-    },
-    [users]
-  );
+  const likeUser = React.useCallback(async () => {
+    setUsers((prev) => {
+      const temp = [...prev];
+      if (temp.length === 0) return temp;
+      const targetUser = temp.splice(0, 1)[0];
+      onLikeUser(targetUser);
+      return temp;
+    });
+  }, [users]);
 
   // Create context provider value
   const value = React.useMemo<UsersContextValue>(() => {
@@ -69,8 +96,9 @@ export function UsersProvider(props: {
       loadUsers,
       dislikeUser,
       likeUser,
+      loadingUsers,
     };
-  }, [users, loadUsers, dislikeUser, likeUser]);
+  }, [users, loadUsers, dislikeUser, likeUser, loadingUsers]);
 
   return (
     <UsersContext.Provider value={value}>{children}</UsersContext.Provider>
