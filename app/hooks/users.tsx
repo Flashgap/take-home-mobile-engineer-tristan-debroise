@@ -37,7 +37,7 @@ export function UsersProvider(props: {
   const { children } = props;
   const [users, setUsers] = React.useState<User[]>([]);
   const [loadingUsers, setLoading] = React.useState<boolean>(false);
-  console.log(loadingUsers);
+
   // Load users
   const loadUsers = React.useCallback(async () => {
     setLoading(true);
