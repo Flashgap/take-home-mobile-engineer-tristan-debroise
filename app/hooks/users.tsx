@@ -1,5 +1,8 @@
 import React, { useEffect } from "react";
 
+import { useSnackbar } from "@atoms/snackbar";
+import { formatUserName } from "@utils/userDisplay";
+
 import { UsersAPI } from "../api";
 import { User } from "../models";
 
@@ -27,6 +30,7 @@ const UsersContext = React.createContext<UsersContextValue>({
 export function UsersProvider(props: {
   children: React.ReactNode;
 }): React.ReactElement {
+  const { open } = useSnackbar();
   const { children } = props;
   const [users, setUsers] = React.useState<User[]>([]);
 
@@ -52,9 +56,11 @@ export function UsersProvider(props: {
     });
   }, [users]);
 
-  async function onLikeUser(userId: string) {
-    const res = await UsersAPI.likeUser(userId);
-    console.log(res);
+  async function onLikeUser(user: User) {
+    const res = await UsersAPI.likeUser(user.id);
+    if (res.matched) {
+      open({ message: `It's a match! With ${formatUserName(user.name)}` });
+    }
   }
 
   // Like user
@@ -63,7 +69,7 @@ export function UsersProvider(props: {
       const temp = [...prev];
       if (temp.length === 0) return temp;
       const targetUser = temp.splice(0, 1)[0];
-      onLikeUser(targetUser.id);
+      onLikeUser(targetUser);
       return temp;
     });
   }, [users]);
